@@ -14,6 +14,8 @@ import { StackNavigator } from 'react-navigation';
 import { Location, Permissions, MapView } from 'expo';
 import axios from 'axios';
 const url = "https://damp-falls-88401.herokuapp.com/";
+const mapUrl = "https://maps.googleapis.com/maps/api/geocode/json";
+const key = "AIzaSyAXf9lLD5B3xgJKK3zhUfDSy9cbDDohO4M";
 
 class NewHunt extends React.Component {
   static navigationOptions = (props) => ({
@@ -29,6 +31,8 @@ class NewHunt extends React.Component {
       gameID: '',
       locationName: '',
       locationHint: '',
+      locationClue: '',
+      locationsMap: [],
       locations: ds.cloneWithRows([]),
       // players: ds.cloneWithRows([])
     }
@@ -46,6 +50,7 @@ class NewHunt extends React.Component {
             if (response.data.locations) {
               this.setState({
                 locations: ds.cloneWithRows(response.data.locations),
+                locationsMap: response.data.locations,
                 // players: ds.cloneWithRows(response.data.players)
               });
             }
@@ -76,26 +81,39 @@ class NewHunt extends React.Component {
       alert('Empty fields.');
       return;
     }
-    axios.post(url + 'addLocation', {
-      gameID: this.state.gameID,
-      locationName: this.state.locationName,
-      locationHint: this.state.locationHint
-    })
-    .then(response => {
-      if (! response.data.added) {
-        alert("Failed to add location.");
-      } else {
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.setState({
-          locations: ds.cloneWithRows(response.data.locations),
-          locationName: '',
-          locationHint: '',
-        });
-      }
-    })
-    .catch(err => {
-      alert("Error adding location to database.");
-    })
+    var addressJoinedByPlus = this.state.locationName.split(' ').join('+');
+    axios.post(mapUrl+'?address=' + addressJoinedByPlus + '&key=' + key)
+      .then(response => {
+        var responseLocation = response.data.results[0].geometry.location;
+        this.setState({lat: responseLocation.lat, long: responseLocation.lng});
+        axios.post(url + 'addLocation', {
+          gameID: this.state.gameID,
+          locationName: this.state.locationName,
+          locationHint: this.state.locationHint,
+          locationClue: this.state.locationClue,
+          lat: this.state.lat,
+          long: this.state.long,
+        })
+        .then(response => {
+          if (! response.data.added) {
+            alert("Failed to add location.");
+          } else {
+            const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+            this.setState({
+              locations: ds.cloneWithRows(response.data.locations),
+              locationName: '',
+              locationHint: '',
+              locationClue: '',
+            });
+          }
+        })
+        .catch(err => {
+          alert("Error adding location to database.");
+        })
+      })
+      .catch(err => {
+        console.log("ERROR: ", err);
+      })
   }
 
   deleteHunt() {
@@ -129,28 +147,39 @@ class NewHunt extends React.Component {
         <View style={styles.mapBox}>
           <MapView
             style={{height: '100%', width: '100%'}}
+            showsUserLocation={true}
             region={{
               latitude: this.state.lat,
               longitude: this.state.long,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.005
-            }}
-            showsUserLocation={true}
-          />
+              latitudeDelta: 0.02,
+              longitudeDelta: 0.01
+            }}>
+            {this.state.locationsMap.map((eachLocation, index) => (<MapView.Marker
+              key={index + 1}
+              coordinate={{latitude: eachLocation.lat, longitude: eachLocation.long}}
+              title={eachLocation.name}
+            />))}
+          </MapView>
         </View>
         <View style={styles.inputAddBox}>
           <View style={styles.inputBox}>
             <TextInput
               style={styles.textInput}
-              placeholder="Enter name of location"
+              placeholder="Enter specific name of location"
               value={this.state.locationName}
               onChangeText={text => this.setState({locationName: text})}
             />
             <TextInput
               style={[styles.textInput, {marginTop: 5}]}
-              placeholder="Enter hint for location"
+              placeholder="Enter hint to find location"
               value={this.state.locationHint}
               onChangeText={text => this.setState({locationHint: text})}
+            />
+            <TextInput
+              style={[styles.textInput, {marginTop: 5}]}
+              placeholder="Enter clue to be revealed"
+              value={this.state.locationHint}
+              onChangeText={text => this.setState({locationClue: text})}
             />
           </View>
           <View style={styles.addButtonBox}>
@@ -166,7 +195,8 @@ class NewHunt extends React.Component {
             renderRow={(rowData) => (
               <View>
                 <Text style={{marginLeft: 10, fontFamily: 'Arial', fontWeight: 'bold', fontSize: 18}}>{rowData.name}</Text>
-                <Text style={{marginLeft: 20, marginBottom: 15, fontFamily: 'Arial', fontSize: 15}}>{rowData.hint}</Text>
+                <Text style={{marginLeft: 20, marginBottom: 15, fontFamily: 'Arial', fontSize: 15}}>Hint: {rowData.hint}</Text>
+                <Text style={{marginLeft: 20, marginBottom: 15, fontFamily: 'Arial', fontSize: 15}}>Clue: {rowData.clue}</Text>
               </View>
             )}
           />
@@ -192,7 +222,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     margin: 0,
     padding: 0,
-    height: '20%',
+    height: '23%',
     width: '100%',
     alignItems: 'center'
   },
@@ -205,21 +235,21 @@ const styles = StyleSheet.create({
     width: '20%',
     height: '100%',
     paddingRight: 10,
-    paddingTop: 17,
-    paddingBottom: 17
+    paddingTop: 12,
+    paddingBottom: 12
   },
   mapBox: {
     height: '35%',
   },
   listBox: {
-    height: '38%'
+    height: '35%'
   },
   textInput: {
     paddingLeft: 10,
     paddingRight: 10,
     borderWidth: 1,
     borderColor: 'gray',
-    height: 40,
+    height: 35,
     marginLeft: 10,
     marginRight: 10,
   },

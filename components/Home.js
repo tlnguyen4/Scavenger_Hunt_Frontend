@@ -90,7 +90,7 @@ class Home extends React.Component {
   logOut() {
     AsyncStorage.removeItem('user');
     AsyncStorage.removeItem('game');
-    this.props.navigation.goBack();
+    this.props.navigation.navigate('Welcome');
   }
 
   render() {
