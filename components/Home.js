@@ -7,7 +7,8 @@ import {
   TextInput,
   ListView,
   Alert,
-  AsyncStorage
+  AsyncStorage,
+  AlertIOS,
 } from 'react-native';
 import axios from 'axios';
 const url = "https://damp-falls-88401.herokuapp.com/";
@@ -22,7 +23,8 @@ class Home extends React.Component {
     this.state = {
       username: '',
       name: '',
-      id: ''
+      id: '',
+      gameID: '',
     }
   }
 
@@ -38,7 +40,7 @@ class Home extends React.Component {
     AsyncStorage.getItem('game')
       .then(result => {
         if (result) {
-          alert('There is already a game. Head over to Current Hunt.');
+          alert('You are already in a game. Head over to Current Hunt.');
         } else {
           axios.post(url + 'newHunt', {
             creator: this.state.name,
@@ -63,7 +65,26 @@ class Home extends React.Component {
   }
 
   joinHunt() {
-    alert("Join hunt feature not implemented at the moment.");
+    // prompt user for the game id. make axios post to add game id to the user's modal. add user's id to the game model.
+    // head over to the JoinHunt page.
+    AsyncStorage.getItem('game')
+      .then(result => {
+        if (result) {
+          alert("You are already in a game. Head over to Current Hunt.")
+        } else {
+          AlertIOS.prompt(
+            'Enter game ID: ',
+            null,
+            text => this.setState({gameID: text}),
+            null,
+            'plain-text'
+          );
+          console.log(this.state.gameID);
+        }
+      })
+      .catch(err => {
+        alert("Error trying to join game.");
+      })
   }
 
   currentHunt() {

@@ -8,7 +8,8 @@ import {
   ListView,
   Alert,
   Button,
-  AsyncStorage
+  AsyncStorage,
+  Clipboard,
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { Location, Permissions, MapView } from 'expo';
@@ -77,7 +78,7 @@ class NewHunt extends React.Component {
   }
 
   add() {
-    if (! this.state.locationName || ! this.state.locationHint) {
+    if (! this.state.locationName || ! this.state.locationHint || ! this.state.locationClue) {
       alert('Empty fields.');
       return;
     }
@@ -99,8 +100,11 @@ class NewHunt extends React.Component {
             alert("Failed to add location.");
           } else {
             const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+            var updateLocationsMap = this.state.locationsMap.slice();
+            updateLocationsMap = response.data.locations;
             this.setState({
               locations: ds.cloneWithRows(response.data.locations),
+              locationsMap: updateLocationsMap,
               locationName: '',
               locationHint: '',
               locationClue: '',
@@ -114,6 +118,17 @@ class NewHunt extends React.Component {
       .catch(err => {
         console.log("ERROR: ", err);
       })
+  }
+
+  shareHunt() {
+    Clipboard.setString(this.state.gameID);
+    Alert.alert(
+      'Your sharable game ID is: ',
+      this.state.gameID,
+      [
+        {text: 'Awesome! Copy ID', onPress: () => Clipboard.setString(this.state.gameID)},
+      ]
+    );
   }
 
   deleteHunt() {
@@ -178,7 +193,7 @@ class NewHunt extends React.Component {
             <TextInput
               style={[styles.textInput, {marginTop: 5}]}
               placeholder="Enter clue to be revealed"
-              value={this.state.locationHint}
+              value={this.state.locationClue}
               onChangeText={text => this.setState({locationClue: text})}
             />
           </View>
@@ -195,13 +210,16 @@ class NewHunt extends React.Component {
             renderRow={(rowData) => (
               <View>
                 <Text style={{marginLeft: 10, fontFamily: 'Arial', fontWeight: 'bold', fontSize: 18}}>{rowData.name}</Text>
-                <Text style={{marginLeft: 20, marginBottom: 15, fontFamily: 'Arial', fontSize: 15}}>Hint: {rowData.hint}</Text>
+                <Text style={{marginLeft: 20, fontFamily: 'Arial', fontSize: 15}}>Hint: {rowData.hint}</Text>
                 <Text style={{marginLeft: 20, marginBottom: 15, fontFamily: 'Arial', fontSize: 15}}>Clue: {rowData.clue}</Text>
               </View>
             )}
           />
         </View>
         <View style={styles.deleteBox}>
+          <TouchableOpacity onPress={() => this.shareHunt()}>
+            <Text style={styles.shareText}>SHARE GAME</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => this.deleteHunt()}>
             <Text style={styles.deleteText}>DELETE GAME</Text>
           </TouchableOpacity>
@@ -268,9 +286,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   deleteBox: {
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+    flexDirection: 'row',
     height: '7%'
+  },
+  shareText: {
+    color: '#3dbd00',
+    textDecorationLine: 'underline',
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginBottom: 5
   },
   deleteText: {
     color: '#ff4d50',
