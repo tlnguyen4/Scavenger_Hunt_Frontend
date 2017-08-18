@@ -65,21 +65,20 @@ class Home extends React.Component {
   }
 
   joinHunt() {
-    // prompt user for the game id. make axios post to add game id to the user's modal. add user's id to the game model.
-    // head over to the JoinHunt page.
     AsyncStorage.getItem('game')
       .then(result => {
         if (result) {
           alert("You are already in a game. Head over to Current Hunt.")
         } else {
           AlertIOS.prompt(
-            'Enter game ID: ',
-            null,
-            text => this.setState({gameID: text}),
-            null,
+            'Enter game ID',
+            'Enter shared game ID to enter hunt.',
+            [
+              {text: 'Cancel', style: 'cancel'},
+              {text: 'Join hunt!', onPress: input => this.joinHuntClickHandle(input)},
+            ],
             'plain-text'
           );
-          console.log(this.state.gameID);
         }
       })
       .catch(err => {
@@ -112,6 +111,29 @@ class Home extends React.Component {
     AsyncStorage.removeItem('user');
     AsyncStorage.removeItem('game');
     this.props.navigation.navigate('Welcome');
+  }
+
+  joinHuntClickHandle(input) {
+    this.setState({gameID: input});
+    console.log(this.state.gameID);
+    axios.post(url + 'joinHunt', {
+      gameID: this.state.gameID,
+      playerID: this.state.id,
+    })
+    .then(response => {
+      if (! response.data.joined) {
+        alert("Failed to join game.");
+      } else {
+        AsyncStorage.setItem('game', JSON.stringify({
+          gameID: this.state.gameID,
+          creatorID: response.data.creatorID,
+        }));
+        this.props.navigation.navigate('JoinHunt');
+      }
+    })
+    .catch(err => {
+      alert("Error joining game in backend.");
+    })
   }
 
   render() {

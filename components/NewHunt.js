@@ -10,6 +10,7 @@ import {
   Button,
   AsyncStorage,
   Clipboard,
+  AlertIOS
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { Location, Permissions, MapView } from 'expo';
@@ -126,12 +127,24 @@ class NewHunt extends React.Component {
       'Your sharable game ID is: ',
       this.state.gameID,
       [
+        {text: 'Cancel', style: 'cancel'},
         {text: 'Awesome! Copy ID', onPress: () => Clipboard.setString(this.state.gameID)},
       ]
     );
   }
 
   deleteHunt() {
+    AlertIOS.alert(
+    'Delete game',
+    'Are you sure you want to delete game?',
+     [
+       {text: 'Cancel', style: 'cancel'},
+       {text: 'Delete', onPress: () => this.deleteHuntClickHandle(), style: 'destructive'},
+     ],
+    );
+  }
+
+  deleteHuntClickHandle() {
     AsyncStorage.getItem('game')
       .then(result => {
         var parsedResult = JSON.parse(result);
