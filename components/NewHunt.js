@@ -231,10 +231,10 @@ class NewHunt extends React.Component {
         </View>
         <View style={styles.deleteBox}>
           <TouchableOpacity onPress={() => this.shareHunt()}>
-            <Text style={styles.shareText}>SHARE GAME</Text>
+            <Text style={styles.shareText}>SHARE HUNT</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.deleteHunt()}>
-            <Text style={styles.deleteText}>DELETE GAME</Text>
+            <Text style={styles.deleteText}>DELETE HUNT</Text>
           </TouchableOpacity>
         </View>
       </View>
