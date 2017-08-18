@@ -62,21 +62,35 @@ class Home extends React.Component {
       });
   }
 
+  joinHunt() {
+    alert("Join hunt feature not implemented at the moment.");
+  }
+
   currentHunt() {
     AsyncStorage.getItem('game')
       .then(result => {
         // if the current user is the hunt creator, the page will head to NewHunt page where they can manage the game.
         // if the user is the hunt player, they will go to CurrentHunt game to continue playing
-        var parsedResult = JSON.parse(result);
-        if (parsedResult.creatorID === this.state.id) {
-          this.props.navigation.navigate('NewHunt');
+        if (! result) {
+          alert("You are not currently in a hunt. Start hunt or join one.");
         } else {
-          this.props.navigation.navigate('CurrentHunt');
+          var parsedResult = JSON.parse(result);
+          if (parsedResult.creatorID === this.state.id) {
+            this.props.navigation.navigate('NewHunt');
+          } else {
+            this.props.navigation.navigate('JoinHunt');
+          }
         }
       })
       .catch(err => {
         alert("Error getting current game.");
       })
+  }
+
+  logOut() {
+    AsyncStorage.removeItem('user');
+    AsyncStorage.removeItem('game');
+    this.props.navigation.goBack();
   }
 
   render() {
@@ -88,7 +102,7 @@ class Home extends React.Component {
           </TouchableOpacity>
         </View>
         <View style={{height: '30%', justifyContent: 'center', alignItems: 'flex-end'}}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={() => this.joinHunt()}>
             <Text style={styles.buttonLabel}>JOIN HUNT</Text>
           </TouchableOpacity>
         </View>
@@ -97,8 +111,10 @@ class Home extends React.Component {
             <Text style={styles.buttonLabel}>CURRENT HUNT</Text>
           </TouchableOpacity>
         </View>
-        <View style={{height: '10%', justifyContent: 'center', alignItems: 'flex-end'}}>
-          <Text style={{textDecoration: 'underline', color: '#ff4d50', fontWeight: 'bold', fontSize: 20}}>LOG OUT</Text>
+        <View style={{height: '10%', justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 10}}>
+          <TouchableOpacity onPress={() => this.logOut()}>
+            <Text style={{textDecorationLine: 'underline', color: '#ff4d50', fontWeight: 'bold', fontSize: 20}}>LOG OUT</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );

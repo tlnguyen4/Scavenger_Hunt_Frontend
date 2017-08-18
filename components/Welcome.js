@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
   buttonLoginWelcome: {
     alignSelf: 'stretch',
     height: '30%',
-    paddingTop: 30,
-    paddingBottom: 30
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   buttonNavy: {
     backgroundColor: '#4a006e',

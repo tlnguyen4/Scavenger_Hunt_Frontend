@@ -5,6 +5,7 @@ import WelcomeScreen from './components/Welcome';
 import RegisterScreen from './components/Register';
 import HomeScreen from './components/Home';
 import NewHuntScreen from './components/NewHunt';
+import JoinHuntScreen from './components/JoinHunt';
 
 //Navigator
 export default StackNavigator({
@@ -29,4 +30,7 @@ export default StackNavigator({
   NewHunt: {
     screen: NewHuntScreen,
   },
+  JoinHunt: {
+    screen: JoinHuntScreen,
+  }
 }, {initialRouteName: 'Welcome'});
