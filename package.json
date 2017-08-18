@@ -1,0 +1,31 @@
+{
+  "name": "scavenger_hunt",
+  "version": "0.0.0",
+  "description": "Hello Expo!",
+  "author": "",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "dependencies": {
+    "axios": "^0.16.2",
+    "body-parser": "^1.17.2",
+    "expo": "^18.0.4",
+    "express": "^4.15.4",
+    "mongoose": "^4.11.7",
+    "react": "^16.0.0-alpha.12",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-18.0.1.tar.gz",
+    "react-native-prompt": "^1.0.0",
+    "react-navigation": "^1.0.0-beta.11"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tlnguyen4/scavenger_hunt_app.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tlnguyen4/scavenger_hunt_app/issues"
+  },
+  "homepage": "https://github.com/tlnguyen4/scavenger_hunt_app#readme"
+}
