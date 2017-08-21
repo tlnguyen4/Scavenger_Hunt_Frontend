@@ -10,7 +10,8 @@ import {
   Button,
   AsyncStorage,
   Clipboard,
-  ProgressViewIOS
+  ProgressViewIOS,
+  AlertIOS
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { Location, Permissions, MapView } from 'expo';
@@ -29,6 +30,7 @@ class JoinHunt extends React.Component {
       gameProgress: [],
       progressIndex: 0,
       id: '',
+      gameID: '',
       currentHint: '',
       gatheredClue: ds.cloneWithRows([]),
     }
@@ -36,36 +38,132 @@ class JoinHunt extends React.Component {
       .then(result => {
         var parsedResult = JSON.parse(result);
         this.setState({id: parsedResult.id});
-        axios.post(url + 'getProgress', {
-          playerID: this.state.id
-        })
-        .then(response => {
-          if (! response.data.progress) {
-            alert("Failed to load progress");
-          } else {
-            this.setState({gameProgress: response.data.gameProgress, progressIndex: response.data.progressIndex, currentHint: response.data.gameProgress[response.data.progressIndex].hint});
-            if (this.state.progressIndex) {
-              var clueList = [];
-              for (var i = 0; i <= this.state.progressIndex; i++) {
-                clueList.push({clue: this.state.gameProgress[i].clue, name: this.state.gameProgress[i].name});
+        AsyncStorage.getItem('game')
+          .then(result2 => {
+            var parsedResult2 = JSON.parse(result2);
+            this.setState({gameID: parsedResult2.gameID});
+            axios.post(url + 'getProgress', {
+              playerID: this.state.id
+            })
+            .then(response => {
+              if (! response.data.progress) {
+                alert("Failed to load progress");
+              } else {
+                this.setState({gameProgress: response.data.gameProgress, progressIndex: response.data.progressIndex});
+                if (this.state.progressIndex === this.state.gameProgress.length) {
+                  this.setState({currentHint: 'No more clue'});
+                } else {
+                  this.setState({currentHint: this.state.gameProgress[this.state.progressIndex].hint})
+                }
+                if (this.state.progressIndex) {
+                  var clueList = [];
+                  for (var i = 0; i < this.state.progressIndex; i++) {
+                    clueList.push({clue: this.state.gameProgress[i].clue, name: this.state.gameProgress[i].name});
+                  }
+                  this.setState({
+                    gatheredClue: ds.cloneWithRows(clueList)
+                  })
+                }
               }
-              this.setState({
-                gatheredClue: ds.cloneWithRows(clueList)
-              })
-            }
-          }
-        })
-        .catch(err => {
-          alert("Error loading game progress.");
-        })
+            })
+            .catch(err => {
+              alert("Error loading game progress.");
+            })
+          })
       })
+  }
+
+  checkIn() {
+    navigator.geolocation.getCurrentPosition(
+      (success) => {
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        var index = this.state.progressIndex;
+        var locationLat = this.state.gameProgress[index].lat;
+        var locationLong = this.state.gameProgress[index].long;
+        var currentLat = success.coords.latitude;
+        var currentLong = success.coords.longitude;
+        var distance = getDistanceFromLatLonInKm(locationLat, locationLong, currentLat, currentLong);
+        console.log(distance);
+        if (distance < 0.05) {
+          axios.post(url + 'checkIn', {
+            playerID: this.state.id,
+          })
+          .then(response => {
+            if (! response.data.checked) {
+              alert("Cannot checkin in backend.");
+            } else {
+              this.setState({progressIndex: response.data.progressIndex});
+              if (this.state.progressIndex === this.state.gameProgress.length) {
+                this.setState({currentHint: 'No more clue'});
+                alert("Congratulations! You finished the hunt.");
+              } else {
+                this.setState({currentHint: this.state.gameProgress[this.state.progressIndex].hint});
+              }
+              if (this.state.progressIndex) {
+                var clueList = [];
+                for (var i = 0; i < this.state.progressIndex; i++) {
+                  clueList.push({clue: this.state.gameProgress[i].clue, name: this.state.gameProgress[i].name});
+                }
+                this.setState({
+                  gatheredClue: ds.cloneWithRows(clueList)
+                })
+              }
+            }
+          })
+          .catch(err => {
+            console.log('axios check in error', err);
+            alert('Error in axios check in post request');
+          })
+        } else if (distance < 0.2) {
+          alert('You\'re close!');
+        } else {
+          alert('You\'re not there yet!');
+        }
+      },
+      (error) => {
+        alert("Error! Can\'t get current location for checkin.");
+      }
+    )
+  }
+
+  leaveHunt() {
+    AlertIOS.alert(
+    'Leave game',
+    'Are you sure you want to leave hunt? Your progress will be lost.',
+     [
+       {text: 'Cancel', style: 'cancel'},
+       {text: 'Delete', onPress: () => this.leaveHuntClickHandle(), style: 'destructive'},
+     ],
+    );
+  }
+
+  leaveHuntClickHandle() {
+    console.log(this.state.gameID);
+    axios.post(url + 'leaveHunt', {
+      playerID: this.state.id,
+      gameID: this.state.gameID,
+    })
+    .then(response => {
+      console.log(response);
+      if (! response.data.left) {
+        alert('Failed to leave game');
+        console.log(response.data.error);
+      } else {
+        AsyncStorage.removeItem('game');
+        this.props.navigation.goBack();
+      }
+    })
+    .catch(err => {
+      console.log("error leaving game", err);
+      alert("Axios error trying to leave game");
+    })
   }
 
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.progressBarBox}>
-          <Text style={styles.progressPercentage}>{this.state.progressIndex/this.state.gameProgress.length}%</Text>
+          <Text style={styles.progressPercentage}>{this.state.progressIndex / this.state.gameProgress.length * 100}%</Text>
           <ProgressViewIOS
             progress={this.state.progressIndex/this.state.gameProgress.length}
             style={styles.progressBar}
@@ -75,7 +173,7 @@ class JoinHunt extends React.Component {
           />
         </View>
         <View style={styles.checkInBox}>
-          <TouchableOpacity style={styles.checkInButton}>
+          <TouchableOpacity style={styles.checkInButton} onPress={() => this.checkIn()}>
             <Text style={styles.checkInButtonLabel}>C H E C K  I N</Text>
           </TouchableOpacity>
         </View>
@@ -90,14 +188,14 @@ class JoinHunt extends React.Component {
             enableEmptySections={true}
             renderRow={(rowData) => (
               <View>
-                <Text style={{marginLeft: 20, fontFamily: 'Arial', fontSize: 18}}>{rowData.name}</Text>
-                <Text style={{marginLeft: 30, fontFamily: 'Arial', fontSize: 15}}>{rowData.clue}</Text>
+                <Text style={{marginLeft: 20, fontFamily: 'Arial', fontSize: 18}}>{rowData.clue}</Text>
+                <Text style={{marginLeft: 30, marginBottom: 15, fontFamily: 'Arial', fontSize: 15, color: 'gray'}}>From {rowData.name}</Text>
               </View>
             )}
           />
         </View>
         <View style={styles.leaveHuntBox}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => this.leaveHunt()}>
             <Text style={styles.leaveText}>LEAVE HUNT</Text>
           </TouchableOpacity>
         </View>
@@ -149,7 +247,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   currentHintBox: {
-    height: '25%',
+    height: '20%',
   },
   currntHintText: {
     fontSize: 20,
@@ -159,10 +257,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   clueBox: {
-    height: '43%',
+    height: '48%',
   },
   clueText: {
-    fontSize: 18,
+    fontSize: 20,
     marginLeft: 10,
     marginBottom: 5,
     marginTop: 10,
@@ -184,3 +282,21 @@ const styles = StyleSheet.create({
 })
 
 export default JoinHunt;
+
+function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1);
+  var a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ;
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = R * c; // Distance in km
+  return d;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}

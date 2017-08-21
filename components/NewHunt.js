@@ -134,8 +134,8 @@ class NewHunt extends React.Component {
 
   deleteHunt() {
     AlertIOS.alert(
-    'Delete game',
-    'Are you sure you want to delete game?',
+    'Delete hunt',
+    'Are you sure you want to delete hunt?',
      [
        {text: 'Cancel', style: 'cancel'},
        {text: 'Delete', onPress: () => this.deleteHuntClickHandle(), style: 'destructive'},
@@ -157,6 +157,7 @@ class NewHunt extends React.Component {
         .then(response => {
           if (! response.data.deleted) {
             alert('Failed to delete game in backend.');
+            console.log(response.data.error);
           } else {
             AsyncStorage.removeItem('game');
             this.props.navigation.goBack();
