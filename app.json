@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "hohoho",
-    "description": "Like Yo but not",
-    "slug": "hohoho",
+    "name": "Scavenger Hunt",
+    "description": "Platform allowing people to organize scavenger hunt games with friends.",
+    "slug": "scavenger",
     "privacy": "public",
     "sdkVersion": "18.0.0",
     "version": "1.0.0",
