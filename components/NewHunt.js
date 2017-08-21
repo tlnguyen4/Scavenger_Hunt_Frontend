@@ -35,6 +35,7 @@ class NewHunt extends React.Component {
       locationHint: '',
       locationClue: '',
       locationsMap: [],
+      disabled: false,
       locations: ds.cloneWithRows([]),
     }
     AsyncStorage.getItem('game')
@@ -121,7 +122,6 @@ class NewHunt extends React.Component {
   }
 
   shareHunt() {
-    Clipboard.setString(this.state.gameID);
     Alert.alert(
       'Your sharable game ID is: ',
       this.state.gameID,
@@ -211,7 +211,7 @@ class NewHunt extends React.Component {
             />
           </View>
           <View style={styles.addButtonBox}>
-            <TouchableOpacity style={styles.addButton} onPress={() => this.add()}>
+            <TouchableOpacity style={styles.addButton} disabled={this.state.disabled} onPress={() => this.add()}>
                 <Text style={styles.addButtonLabel}>ADD</Text>
             </TouchableOpacity>
           </View>
