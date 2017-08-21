@@ -33,4 +33,4 @@ export default StackNavigator({
   JoinHunt: {
     screen: JoinHuntScreen,
   }
-}, {initialRouteName: 'JoinHunt'});
+}, {initialRouteName: 'Welcome'});

@@ -26,17 +26,48 @@ class JoinHunt extends React.Component {
     super();
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
-
+      gameProgress: [],
+      progressIndex: 0,
+      id: '',
+      currentHint: '',
+      gatheredClue: ds.cloneWithRows([]),
     }
+    AsyncStorage.getItem('user')
+      .then(result => {
+        var parsedResult = JSON.parse(result);
+        this.setState({id: parsedResult.id});
+        axios.post(url + 'getProgress', {
+          playerID: this.state.id
+        })
+        .then(response => {
+          if (! response.data.progress) {
+            alert("Failed to load progress");
+          } else {
+            this.setState({gameProgress: response.data.gameProgress, progressIndex: response.data.progressIndex, currentHint: response.data.gameProgress[response.data.progressIndex].hint});
+            if (this.state.progressIndex) {
+              var clueList = [];
+              for (var i = 0; i <= this.state.progressIndex; i++) {
+                clueList.push({clue: this.state.gameProgress[i].clue, name: this.state.gameProgress[i].name});
+              }
+              this.setState({
+                gatheredClue: ds.cloneWithRows(clueList)
+              })
+            }
+          }
+        })
+        .catch(err => {
+          alert("Error loading game progress.");
+        })
+      })
   }
 
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.progressBarBox}>
-          <Text style={styles.progressPercentage}>30%</Text>
+          <Text style={styles.progressPercentage}>{this.state.progressIndex/this.state.gameProgress.length}%</Text>
           <ProgressViewIOS
-            progress={0.3}
+            progress={this.state.progressIndex/this.state.gameProgress.length}
             style={styles.progressBar}
             progressViewStyle="default"
             progressTintColor="#6b0012"
@@ -50,9 +81,20 @@ class JoinHunt extends React.Component {
         </View>
         <View style={styles.currentHintBox}>
           <Text style={styles.currntHintText}>Current Hint</Text>
+          <Text style={{fontSize: 18, marginLeft: 20}}>{this.state.currentHint}</Text>
         </View>
         <View style={styles.clueBox}>
           <Text style={styles.clueText}>Gathered Clues</Text>
+          <ListView
+            dataSource={this.state.gatheredClue}
+            enableEmptySections={true}
+            renderRow={(rowData) => (
+              <View>
+                <Text style={{marginLeft: 20, fontFamily: 'Arial', fontSize: 18}}>{rowData.name}</Text>
+                <Text style={{marginLeft: 30, fontFamily: 'Arial', fontSize: 15}}>{rowData.clue}</Text>
+              </View>
+            )}
+          />
         </View>
         <View style={styles.leaveHuntBox}>
           <TouchableOpacity>
@@ -103,14 +145,14 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontFamily: 'Arial',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   currentHintBox: {
     height: '25%',
   },
   currntHintText: {
-    fontSize: 18,
+    fontSize: 20,
     marginLeft: 10,
     marginBottom: 5,
     marginTop: 15,

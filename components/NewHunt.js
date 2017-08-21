@@ -36,7 +36,6 @@ class NewHunt extends React.Component {
       locationClue: '',
       locationsMap: [],
       locations: ds.cloneWithRows([]),
-      // players: ds.cloneWithRows([])
     }
     AsyncStorage.getItem('game')
       .then(result => {
