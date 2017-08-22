@@ -117,7 +117,7 @@ class NewHunt extends React.Component {
         })
       })
       .catch(err => {
-        console.log("ERROR: ", err);
+        alert("Error retrieving data from Google Map.");
       })
   }
 
@@ -157,7 +157,6 @@ class NewHunt extends React.Component {
         .then(response => {
           if (! response.data.deleted) {
             alert('Failed to delete game in backend.');
-            console.log(response.data.error);
           } else {
             AsyncStorage.removeItem('game');
             this.props.navigation.goBack();
@@ -306,14 +305,12 @@ const styles = StyleSheet.create({
   },
   shareText: {
     color: '#3dbd00',
-    textDecorationLine: 'underline',
     fontWeight: 'bold',
     fontSize: 15,
     marginBottom: 5
   },
   deleteText: {
     color: '#ff4d50',
-    textDecorationLine: 'underline',
     fontWeight: 'bold',
     fontSize: 15,
     marginBottom: 5

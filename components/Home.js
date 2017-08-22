@@ -115,7 +115,6 @@ class Home extends React.Component {
 
   joinHuntClickHandle(input) {
     this.setState({gameID: input});
-    console.log(this.state.gameID);
     axios.post(url + 'joinHunt', {
       gameID: this.state.gameID,
       playerID: this.state.id,
@@ -139,24 +138,24 @@ class Home extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style={{height: '30%', justifyContent: 'center', alignItems: 'flex-start'}}>
+        <View style={styles.onLeftBox}>
           <TouchableOpacity style={styles.button} onPress={() => {this.startHunt()}}>
             <Text style={styles.buttonLabel}>START HUNT</Text>
           </TouchableOpacity>
         </View>
-        <View style={{height: '30%', justifyContent: 'center', alignItems: 'flex-end'}}>
+        <View style={styles.onRightBox}>
           <TouchableOpacity style={styles.button} onPress={() => this.joinHunt()}>
             <Text style={styles.buttonLabel}>JOIN HUNT</Text>
           </TouchableOpacity>
         </View>
-        <View style={{height: '30%', justifyContent: 'center', alignItems: 'flex-start'}}>
+        <View style={styles.onLeftBox}>
           <TouchableOpacity style={styles.button} onPress={() => this.currentHunt()}>
             <Text style={styles.buttonLabel}>CURRENT HUNT</Text>
           </TouchableOpacity>
         </View>
-        <View style={{height: '10%', justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 10}}>
+        <View style={styles.logoutBox}>
           <TouchableOpacity onPress={() => this.logOut()}>
-            <Text style={{textDecorationLine: 'underline', color: '#ff4d50', fontWeight: 'bold', fontSize: 20}}>LOG OUT</Text>
+            <Text style={styles.logOutText}>LOG OUT</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -175,6 +174,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  onLeftBox: {
+    height: '30%',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  onRightBox: {
+    height: '30%',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
   button: {
     height: '50%',
     width: '80%',
@@ -188,6 +197,17 @@ const styles = StyleSheet.create({
     fontFamily: 'Arial',
     color: 'white',
     fontWeight: 'bold'
+  },
+  logoutBox: {
+    height: '10%',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: 10,
+  },
+  logOutText: {
+    color: '#ff4d50',
+    fontWeight: 'bold',
+    fontSize: 20,
   }
 });
 
