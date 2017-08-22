@@ -83,7 +83,7 @@ class JoinHunt extends React.Component {
       var currentLat = location.coords.latitude;
       var currentLong = location.coords.longitude;
       var distance = getDistanceFromLatLonInKm(locationLat, locationLong, currentLat, currentLong);
-      if (distance < 0.05) {
+      if (distance < 0.1) {
         axios.post(url + 'checkIn', {
           playerID: this.state.id,
           index: index
@@ -106,7 +106,7 @@ class JoinHunt extends React.Component {
               }
             })
             if (tCount2 === this.state.gameProgress.length) {
-              alert("Congratulations! You've finished the hunt. Now solve clues.");
+              alert("Congratulations! You've finished the hunt. Gathered clues are up for solving.");
             } else {
               alert('Checked in complete. See clue below.');
             }
@@ -172,26 +172,30 @@ class JoinHunt extends React.Component {
             />
           </View>
           <View style={styles.currentHintBox}>
-            <ListView
-              dataSource={this.state.currentHint}
-              enableEmptySections={true}
-              renderRow={(rowData) => (
-                <TouchableOpacity style={styles.checkInButton} onLongPress={this.checkIn.bind(this, rowData)}>
-                  <Text style={styles.checkInButtonLabel}>{rowData.hint}</Text>
-                </TouchableOpacity>
-              )}
-            />
-            {this.state.tCount ? <Text style={styles.clueText}>Gathered Clues</Text> : <Text></Text>}
-            <ListView
-              dataSource={this.state.gatheredClue}
-              enableEmptySections={true}
-              renderRow={(rowData) => (
-                <View>
-                  <Text style={{marginLeft: 20, fontFamily: 'Arial', fontSize: 18}}>{rowData.clue}</Text>
-                  <Text style={{marginLeft: 30, marginBottom: 15, fontFamily: 'Arial', fontSize: 15, color: 'gray'}}>From {rowData.name}</Text>
-                </View>
-              )}
-            />
+            <View>
+              <ListView
+                dataSource={this.state.currentHint}
+                enableEmptySections={true}
+                renderRow={(rowData) => (
+                  <TouchableOpacity style={styles.checkInButton} onLongPress={this.checkIn.bind(this, rowData)}>
+                    <Text style={styles.checkInButtonLabel}>{rowData.hint}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+            <View>
+              {this.state.tCount ? <Text style={styles.clueText}>Gathered Clues</Text> : <Text></Text>}
+              <ListView
+                dataSource={this.state.gatheredClue}
+                enableEmptySections={true}
+                renderRow={(rowData) => (
+                  <View>
+                    <Text style={{marginLeft: 20, fontFamily: 'Arial', fontSize: 18}}>{rowData.clue}</Text>
+                    <Text style={{marginLeft: 30, marginBottom: 15, fontFamily: 'Arial', fontSize: 15, color: 'gray'}}>From {rowData.name}</Text>
+                  </View>
+                )}
+              />
+            </View>
           </View>
         </View>
         <View style={styles.containerBottom}>

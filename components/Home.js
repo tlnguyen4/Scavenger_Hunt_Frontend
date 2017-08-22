@@ -140,7 +140,7 @@ class Home extends React.Component {
       <View style={styles.container}>
         <View style={styles.onLeftBox}>
           <TouchableOpacity style={styles.button} onPress={() => {this.startHunt()}}>
-            <Text style={styles.buttonLabel}>START HUNT</Text>
+            <Text style={styles.buttonLabel}>ORGANIZE HUNT</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.onRightBox}>
