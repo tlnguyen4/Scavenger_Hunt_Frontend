@@ -13,6 +13,7 @@ export default StackNavigator({
     screen: WelcomeScreen,
     navigationOptions: {
       headerLeft: null,
+      gesturesEnabled: false,
     }
   },
   Login: {
@@ -25,6 +26,7 @@ export default StackNavigator({
     screen: HomeScreen,
     navigationOptions: {
       headerLeft: null,
+      gesturesEnabled: false,
     }
   },
   NewHunt: {

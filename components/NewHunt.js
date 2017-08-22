@@ -132,6 +132,38 @@ class NewHunt extends React.Component {
     );
   }
 
+  deleteLocation(rowData) {
+    Alert.alert(
+      'Delete location',
+      'Are you sure you want to delete location?',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {text: 'Delete', onPress: () => this.deleteLocationClickHandler(rowData), style: 'destructive'},
+      ]
+    );
+  }
+
+  deleteLocationClickHandler(rowData) {
+    axios.post(url + 'deleteLocation', {
+      gameID: this.state.gameID,
+      lat: rowData.lat,
+      long: rowData.long,
+    })
+    .then(response => {
+      if (! response.data.deleted) {
+        alert("Cannot delete location.");
+      } else {
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        var updateLocationsMap = this.state.locationsMap.slice();
+        updateLocationsMap = response.data.locations;
+        this.setState({
+          locations: ds.cloneWithRows(response.data.locations),
+          locationsMap: updateLocationsMap,
+        });
+      }
+    })
+  }
+
   deleteHunt() {
     AlertIOS.alert(
     'Delete hunt',
@@ -211,7 +243,7 @@ class NewHunt extends React.Component {
           </View>
           <View style={styles.addButtonBox}>
             <TouchableOpacity style={styles.addButton} disabled={this.state.disabled} onPress={() => this.add()}>
-                <Text style={styles.addButtonLabel}>ADD</Text>
+              <Text style={styles.addButtonLabel}>ADD</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -221,7 +253,9 @@ class NewHunt extends React.Component {
             enableEmptySections={true}
             renderRow={(rowData) => (
               <View>
-                <Text style={{marginLeft: 10, fontFamily: 'Arial', fontWeight: 'bold', fontSize: 18}}>{rowData.name}</Text>
+                <TouchableOpacity onLongPress={this.deleteLocation.bind(this, rowData)}>
+                  <Text style={{marginLeft: 10, fontFamily: 'Arial', fontWeight: 'bold', fontSize: 18}}>{rowData.name}</Text>
+                </TouchableOpacity>
                 <Text style={{marginLeft: 20, fontFamily: 'Arial', fontSize: 15}}>Hint: {rowData.hint}</Text>
                 <Text style={{marginLeft: 20, marginBottom: 15, fontFamily: 'Arial', fontSize: 15}}>Clue: {rowData.clue}</Text>
               </View>
@@ -229,12 +263,16 @@ class NewHunt extends React.Component {
           />
         </View>
         <View style={styles.deleteBox}>
-          <TouchableOpacity onPress={() => this.shareHunt()}>
-            <Text style={styles.shareText}>SHARE HUNT</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.deleteHunt()}>
-            <Text style={styles.deleteText}>DELETE HUNT</Text>
-          </TouchableOpacity>
+          <View style={styles.deleteShareContainer}>
+            <TouchableOpacity onPress={() => this.shareHunt()}>
+              <Text style={styles.shareText}>SHARE HUNT</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.deleteShareContainer}>
+            <TouchableOpacity onPress={() => this.deleteHunt()}>
+              <Text style={styles.deleteText}>DELETE HUNT</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     )
@@ -264,7 +302,7 @@ const styles = StyleSheet.create({
   addButtonBox: {
     width: '20%',
     height: '100%',
-    paddingRight: 10,
+    paddingLeft: 5,
     paddingTop: 12,
     paddingBottom: 12
   },
@@ -272,16 +310,14 @@ const styles = StyleSheet.create({
     height: '35%',
   },
   listBox: {
-    height: '35%'
+    height: '37%'
   },
   textInput: {
     paddingLeft: 10,
     paddingRight: 10,
     borderWidth: 1,
     borderColor: 'gray',
-    height: 35,
-    marginLeft: 10,
-    marginRight: 10,
+    height: 35
   },
   addButton: {
     backgroundColor: '#3dbd00',
@@ -298,22 +334,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   deleteBox: {
-    justifyContent: 'space-around',
-    alignItems: 'flex-end',
     flexDirection: 'row',
-    height: '7%'
+    height: '5%',
   },
   shareText: {
     color: '#3dbd00',
     fontWeight: 'bold',
     fontSize: 15,
-    marginBottom: 5
   },
   deleteText: {
     color: '#ff4d50',
     fontWeight: 'bold',
     fontSize: 15,
-    marginBottom: 5
+  },
+  deleteShareContainer: {
+    height: '100%',
+    width: '50%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 5
   }
 })
 
