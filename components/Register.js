@@ -23,6 +23,24 @@ class Register extends React.Component {
     }
   }
 
+  checkUsername() {
+    axios.post(url + 'checkUsername', {
+      username: this.state.username,
+    })
+    .then(response => {
+      if (! response.data.checked) {
+        alert("Failed to check username for existing account");
+      } else {
+        if (response.data.existed) {
+          alert("Username not available.");
+        }
+      }
+    })
+    .catch(err => {
+      alert("Error in axios post trying to check username.");
+    })
+  }
+
   register() {
     if (! this.state.name || ! this.state.username || ! this.state.password || ! this.state.repeatPassword) {
       alert('Empty field.');
@@ -65,6 +83,7 @@ class Register extends React.Component {
           placeholder="Username"
           autoCapitalize="none"
           onChangeText={text => this.setState({username: text})}
+          onEndEditing={this.checkUsername()}
         />
         <TextInput
           style={[styles.input, styles.text]}

@@ -178,7 +178,7 @@ class JoinHunt extends React.Component {
                 enableEmptySections={true}
                 renderRow={(rowData) => (
                   <TouchableOpacity style={styles.checkInButton} onLongPress={this.checkIn.bind(this, rowData)}>
-                    <Text style={styles.checkInButtonLabel}>{rowData.hint}</Text>
+                    <Text style={styles.checkInButtonLabel}>{rowData.index}. {rowData.hint}</Text>
                   </TouchableOpacity>
                 )}
               />
@@ -247,13 +247,14 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     backgroundColor: '#795dff',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     borderRadius: 5
   },
   checkInButtonLabel: {
     color: 'white',
     fontFamily: 'Arial',
+    textAlign: 'left',
     fontSize: 18
   },
   currentHintBox: {

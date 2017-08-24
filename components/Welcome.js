@@ -38,7 +38,7 @@ class Welcome extends React.Component {
     return (
       <View style={styles.container}>
         <View style={styles.titleContainer}>
-          <Text style={styles.welcome}>SCAVENGER HUNT</Text>
+          <Text style={styles.welcome}>HUNT</Text>
           <Text style={{fontSize: 40}}>🔍</Text>
         </View>
         <View style={styles.welcomeScreenButtonsContainer}>

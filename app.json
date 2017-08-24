@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Scavenger Hunt",
+    "name": "Hunt",
     "description": "Platform allowing people to organize scavenger hunt games with friends.",
     "slug": "scavenger",
     "privacy": "public",

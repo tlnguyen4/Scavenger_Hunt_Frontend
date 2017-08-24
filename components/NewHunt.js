@@ -210,8 +210,8 @@ class NewHunt extends React.Component {
             region={{
               latitude: this.state.lat,
               longitude: this.state.long,
-              latitudeDelta: 0.02,
-              longitudeDelta: 0.01
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.005
             }}>
             {this.state.locationsMap.map((eachLocation, index) => (<MapView.Marker
               key={index + 1}

@@ -15,7 +15,7 @@ const url = "https://damp-falls-88401.herokuapp.com/";
 
 class Home extends React.Component {
   static navigationOptions = (props) => ({
-    title: 'Scavenger Hunt'
+    title: 'Hunt'
   })
 
   constructor() {
