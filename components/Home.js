@@ -33,6 +33,17 @@ class Home extends React.Component {
       .then(result => {
         var parsedResult = JSON.parse(result);
         this.setState({username: parsedResult.username, name: parsedResult.name, id: parsedResult.id});
+        AsyncStorage.getItem('game')
+          .then(result2 => {
+            if (result2) {
+              var parsedResult2 = JSON.parse(result2);
+              if (this.state.id === parsedResult2.creatorID) {
+                this.props.navigation.navigate('NewHunt');
+              } else {
+                this.props.navigation.navigate('JoinHunt');
+              }
+            }
+          })
       })
   }
 

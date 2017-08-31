@@ -83,7 +83,7 @@ class JoinHunt extends React.Component {
       var currentLat = location.coords.latitude;
       var currentLong = location.coords.longitude;
       var distance = getDistanceFromLatLonInKm(locationLat, locationLong, currentLat, currentLong);
-      if (distance < 0.1) {
+      if (distance < 0.05) {
         axios.post(url + 'checkIn', {
           playerID: this.state.id,
           index: index
@@ -120,7 +120,7 @@ class JoinHunt extends React.Component {
         .catch(err => {
           alert("Axios post err trying to check in");
         })
-      } else if (distance < 0.2) {
+      } else if (distance < 0.3) {
         alert('You\'re close!');
       } else {
         alert('You\'re not there yet!');
