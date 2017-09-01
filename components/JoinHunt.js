@@ -178,7 +178,7 @@ class JoinHunt extends React.Component {
                 enableEmptySections={true}
                 renderRow={(rowData) => (
                   <TouchableOpacity style={styles.checkInButton} onLongPress={this.checkIn.bind(this, rowData)}>
-                    <Text style={styles.checkInButtonLabel}>{rowData.index}. {rowData.hint}</Text>
+                    <Text style={styles.checkInButtonLabel}>{rowData.index + 1}. {rowData.hint}</Text>
                   </TouchableOpacity>
                 )}
               />
